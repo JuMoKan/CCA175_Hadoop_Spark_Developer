@@ -198,3 +198,178 @@ sqoop import \
   --split-by order_id \
   --append
 ```
+
+
+```
+sqoop import \
+  --connect - username - password -target-dir 
+  --table orders \
+  --where "order_date like '2014-02%'" \
+  --append
+```
+
+```
+sqoop import \
+  --connect - username - password -target-dir 
+  --table orders \
+  --check-column order_date \
+  --incremental append \
+  --last-value '2014-02-28'
+
+```
+
+
+
+
+# Check MySQL
+
+From command line, access a MySQL on localhost via
+
+```
+mysql -h localhost -u root -p
+mysql -u retail_dba -p
+mysql -h localhost -u retail_dba -p
+```
+
+
+Sqoop needs permissions to access the tables. 
+You grant these permissions from MySQL like so:
+
+```
+GRANT ALL PRIVILEGES ON <database_name>.* to ''@'localhost';
+```
+
+
+```
+show databases;  -- list all available databases
+use retail_db;   -- switch to this database
+show tables;
+select * from customers limit 10;  -- query the table
+```
+
+```
+create table products_replica as select * from products
+alter table products_replica add primary key (product_id);
+alter table products_replica add column (product_grade int, product_sentiment varchar(100))
+update products_replica set product_grade = 1  where product_price > 500;
+update products_replica set product_sentiment  = 'WEAK'  where product_price between 300 and  500;
+```
+
+To export a table, you must first create it in MySQL. 
+
+```
+create table retail_db.result(
+	order_date varchar(255) not null,
+	order_status varchar(255) not null, 
+	total_orders int, 
+	total_amount numeric, 
+	constraint pk_order_result primary key (order_date,order_status)); 
+```
+
+
+
+# Hive
+
+
+Default hive import behavior: 
+---Create table if table does not exists
+---If table already exists, data will be appended.
+
+If we want to overwrite it:
+-–-hive-overwrite: will replace existing data with new set of data
+
+
+```
+sqoop import-all-tables \
+  --connect -username -password 
+  --hive-import \
+  --hive-overwrite \
+  --hive-database "sqoop_import_test" #You can choose the database tou want
+  --compress \
+  --compression-codec org.apache.hadoop.io.compress.SnappyCodec \
+  --outdir java_files
+```
+
+If table does not exist, we could add --hive-create-table.
+–- create-hive-table: will fail hive import, if table already exists
+-- Sqoop stores data in a temporary directory called the staging table under the user's home directory :  /user/cloudera before copying data into Hive table. cloudera => /user/cloudera/department should not exists. 
+The temporary directory is removed after the job is done.
+
+```
+sqoop import 
+ --connect -username -password 
+ --table=departments 
+ --hive-home=/user/hive/warehouse 
+ --hive-import 
+ --hive-overwrite 
+ --create-hive-table 
+ --hive-table=sqoop_import.departments
+ --outdir java_files
+
+```
+
+–-hive-database can be used to specify the database
+--Instead of –hive-database, we can use database name as prefix as part of –hive-table
+
+
+# Export
+
+```
+sqoop export
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username retail_dba \
+  --password cloudera \
+  --table departments \
+  --export-dir /user/cloudera/sqoop_export/departments  \
+  --export-dir /user/hive/warehouse/<database_name>/<table_name> (if export form Hive internal table)  \
+  --fields-terminated-by '\0001' (default field delimiter is ASCII value 1 there.) \
+  --input-null-string   "null" \
+  --input-null-non-string "null"  (to recode from the corresponding values to NULL in the database.) \
+  --update-mode allowinsert  (to insert while updatin)\
+  --update-key product_id   (--update key {primary_key} to update rows)\
+  --columns "col1, col2, col3" \
+  --num-mappers 2 \
+  --batch \
+  --outdir java_files
+```
+
+# Sqoop merge
+
+```
+sqoop merge \
+--class-name products_replica \
+--jar-file /tmp/sqoop-cloudera/compile/66b4f23796be7625138f2171a7331cd3/products_replica.jar \
+--new-data /user/cloudera/problem5/products-text-part2 \
+--onto /user/cloudera/problem5/products-text-part1 \
+--target-dir /user/cloudera/problem5/products-text-both-parts \
+--merge-key product_id;
+```
+
+
+# Sqoop jobs
+
+```
+sqoop job --create sqoop_job \
+  -- import \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --table departments \
+  --target-dir /user/cloudera/sqoop_import/departments \
+  --fields-terminated-by '|' \
+  --lines-terminated-by '\n' \
+  --outdir java_files
+```
+
+`sqoop job --list`
+
+`sqoop job --show sqoop_job`
+
+`sqoop job --exec sqoop_job`
+
+
+
+
+
+
+
+
