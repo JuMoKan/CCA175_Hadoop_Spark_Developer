@@ -38,10 +38,10 @@ sqoop import-all-tables \
   --warehouse-dir=/user/cloudera/sqoop_import
 ```
 
-sqoop import-all-tables
-–exclude-tables, will facilitate to exclude the tables that need not be imported
-–auto-reset-to-one-mapper, will let import all tables to choose one mapper in case table does not have primary key
--Most of the features such as –query, –boundary-query, –where etc are not available with import-all-tables.
+sqoop import-all-tables \
+–exclude-tables, will facilitate to exclude the tables that need not be imported\
+–auto-reset-to-one-mapper, will let import all tables to choose one mapper in case table does not have primary key\
+-Most of the features such as –query, –boundary-query, –where etc are not available with import-all-tables.\
 
 
 ```
@@ -53,7 +53,7 @@ sqoop import \
   --target-dir /user/cloudera/sqoop_import/retail.db/departments
 ```
 
-Import options
+Import options \
 --fields-terminated-by '|' : changes the field delimiter from the default \t to another one. \
 --lines-terminated-by '\n' \
 --driver is only relevant if the connection string does not begin with jdbc:mysql://. \
@@ -63,17 +63,17 @@ Import options
 --num-mappers 1, default is 4 \
 
 
-File-formats: text file (default), sequence file, avro, parquet, orc (?)
---as-sequencefile
---as-avrodatafile
---as-parquetfile
+File-formats: text file (default), sequence file, avro, parquet, orc (?) \
+--as-sequencefile \
+--as-avrodatafile \
+--as-parquetfile \
 
 
 
 # Sqoop import to existing directories
 
-By default sqoop import fails if target directory already exists
-Directory can be overwritten by using –delete-target-dir
+By default sqoop import fails if target directory already exists \
+Directory can be overwritten by using –delete-target-dir\
 Data can be appended to existing directories by saying –append
 
 ```
@@ -114,11 +114,11 @@ Compression codecs: SnappyCodec, BZip2Codec, GzipCodec, and DefaultCodec\
 
 # split-by / boundary-query
 
-*Split logic will be applied on primary key, if exists.
-*For performance reason choose a column which is indexed as part of split-by clause
-*If primary key does not exists and if we use number of mappers more than 1, then sqoop import will fail.We can use –split-by to split on a non key column or explicitly set –num-mappers to 1 or use –auto-reset-to-one-mapper
-*If the primary key column or the column specified in split-by clause is non numeric type, then we need to use this additional argument -Dorg.apache.sqoop.splitter.allow_text_splitter=true
-*If there are null values in the column, corresponding records from the table will be ignored
+*Split logic will be applied on primary key, if exists.  \
+*For performance reason choose a column which is indexed as part of split-by clause \
+*If primary key does not exists and if we use number of mappers more than 1, then sqoop import will fail.We can use –split-by to split on a non key column or explicitly set –num-mappers to 1 or use –auto-reset-to-one-mapper  \
+*If the primary key column or the column specified in split-by clause is non numeric type, then we need to use this additional argument -Dorg.apache.sqoop.splitter.allow_text_splitter=true \
+*If there are null values in the column, corresponding records from the table will be ignored \
 *Data in the split-by column need not be unique, but if there are duplicates then there can be skew in the data while importing (which means some files might be relatively bigger compared to other files)
 
 
@@ -139,7 +139,6 @@ sqoop import \
 
 # Import Query results, select columns, where
 
---where "product_id > 10000" can select a subset from the table that gets imported \
 
 ```
 sqoop import \
@@ -162,13 +161,15 @@ sqoop import \
 sqoop import \
   --connect ...\
   --where "order_date like '2014-02%'" \
+  --where "product_id > 10000" can select a subset from the table that gets imported \
+
 
 ```
 
 
-Getting delta (--where) : if there are new records in mysql database that need to be stored in HDFS. 
---append option is used to avoid the failure (department folder already exists). 
-N+1 is the index of the first new record to be stored in HDFS.
+Getting delta (--where) : if there are new records in mysql database that need to be stored in HDFS.  \
+--append option is used to avoid the failure (department folder already exists). \
+N+1 is the index of the first new record to be stored in HDFS.\
 
 ```
 sqoop import \
@@ -197,75 +198,3 @@ sqoop import \
   --split-by order_id \
   --append
 ```
-
-
-```
-sqoop import \
-  --connect - username - password -target-dir 
-  --table orders \
-  --where "order_date like '2014-02%'" \
-  --append
-```
-
-```
-sqoop import \
-  --connect - username - password -target-dir 
-  --table orders \
-  --check-column order_date \
-  --incremental append \
-  --last-value '2014-02-28'
-
-```
-
-
-
-
-# Check MySQL
-
-From command line, access a MySQL on localhost via
-
-```
-mysql -h localhost -u root -p
-mysql -u retail_dba -p
-mysql -h localhost -u retail_dba -p
-```
-
-
-Sqoop needs permissions to access the tables. 
-You grant these permissions from MySQL like so:
-
-```
-GRANT ALL PRIVILEGES ON <database_name>.* to ''@'localhost';
-```
-
-
-```
-show databases;  -- list all available databases
-use retail_db;   -- switch to this database
-show tables;
-select * from customers limit 10;  -- query the table
-```
-
-```
-create table products_replica as select * from products
-alter table products_replica add primary key (product_id);
-alter table products_replica add column (product_grade int, product_sentiment varchar(100))
-update products_replica set product_grade = 1  where product_price > 500;
-update products_replica set product_sentiment  = 'WEAK'  where product_price between 300 and  500;
-```
-
-```
-create table retail_db.result(
-	order_date varchar(255) not null,
-	order_status varchar(255) not null, 
-	total_orders int, 
-	total_amount numeric, 
-	constraint pk_order_result primary key (order_date,order_status)); 
-```
-
-
-
-Next:
-HIVE
-
-
