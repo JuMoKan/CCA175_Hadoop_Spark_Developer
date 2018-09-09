@@ -1,9 +1,9 @@
 # Exercise:
-Import customer_id, customer_city, customer_state from mysql customer table into hfds as parquet-file.
+Import customer_id, customer_city, customer_state from mysql customer table into hfds as parquet-file.  
 Use: /user/cloudera/import_export/ex_1/imp_customer_parquet
 
-Convert into csv file using gzip compression and save in HDFS.
-Use: /user/cloudera/import_export/ex_1/exp_customer_csv_gzip)
+Convert into csv file using gzip compression and save in HDFS.  
+Use: /user/cloudera/import_export/ex_1/exp_customer_csv_gzip
 
 ### Step 1: Get the data from mysql to hdfs  
 ```
@@ -18,14 +18,14 @@ sqoop import \
 ```
 
 ### Step 2: Read in as pyspark.sql.dataframe.DataFrame
-pyspark.sql module - Module Context - DataFrameReader
+documentation: pyspark.sql module - Module Context - DataFrameReader
 
 ```
 customer = sqlContext.read.parquet('/user/cloudera/import_export/ex_1/imp_customer_parquet/')
 ```
 
 ### Step 3: Convert into csv file using gzip compression
-pyspark package - RDD - saveAsTextFile
+documentation: pyspark package - RDD - saveAsTextFile
 
 ```
 codec = "org.apache.hadoop.io.compress.GzipCodec"
@@ -40,11 +40,11 @@ customer.repartition(1).rdd \
 
 # Exercise  -- avro version
 
-Import customer_id, customer_city, customer_state from mysql customer table into hfds as avro-file.
+Import customer_id, customer_city, customer_state from mysql customer table into hfds as avro-file.  
 Use: /user/cloudera/import_export/ex_1/imp_customer_avro
 
-Convert into csv file using gzip compression and save in HDFS.
-Use: /user/cloudera/import_export/ex_1/exp_customer_csv_gzip)
+Convert into csv file using gzip compression and save in HDFS.  
+Use: /user/cloudera/import_export/ex_1/exp_customer_csv_gzip
 
 ### Step 1: Get the data from mysql to hdfs  
 ```
@@ -67,7 +67,7 @@ customer_avro = sqlContext.read \
   .load('/user/cloudera/import_export/ex_1/imp_customer_avro/')
 ```
 
-Didn't work (import com.databricks.spark.avro._)
+Didn't work (import com.databricks.spark.avro.)  
 https://github.com/databricks/spark-avro
 ```
 import com.databricks.spark.avro._
