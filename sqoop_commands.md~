@@ -1,4 +1,4 @@
-### Get information about databases, tables and data (run sql queries using sqoop eval)
+# Get information about databases, tables and data 
 
 ```
 sqoop list-databases \
@@ -14,7 +14,8 @@ sqoop list-tables \
   --password cloudera
 ```
 
-Any valid sql query can be run using sqoop eval. 
+Any valid sql query or command can be run using sqoop eval. 
+
 ```
 sqoop eval \
   --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
@@ -27,7 +28,8 @@ sqoop eval \
 ```
 
 
-### Sqoop import all tables
+# Sqoop import
+
 ```
 sqoop import-all-tables \
   --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
@@ -37,12 +39,11 @@ sqoop import-all-tables \
 ```
 
 sqoop import-all-tables \
--- exclude-tables, will facilitate to exclude the tables that need not be imported\
--- auto-reset-to-one-mapper, will let import all tables to choose one mapper in case table does not have primary key\
--- Most of the features such as –query, –boundary-query, –where etc are not available with import-all-tables.\
+–exclude-tables, will facilitate to exclude the tables that need not be imported\
+–auto-reset-to-one-mapper, will let import all tables to choose one mapper in case table does not have primary key\
+-Most of the features such as –query, –boundary-query, –where etc are not available with import-all-tables.\
 
 
-### Sqoop import 
 ```
 sqoop import \
   --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
@@ -55,20 +56,21 @@ sqoop import \
 Import options \
 --fields-terminated-by '|' : changes the field delimiter from the default \t to another one. \
 --lines-terminated-by '\n' \
+--driver is only relevant if the connection string does not begin with jdbc:mysql://. \
 --null-non-string -99 : to recode NULL values from the database into -99 for non-string data types. \
 --null-string "NA" : the same option for strings \
 --null-non-string und null-string: If not specified, then the string "null" will be used.\
 --num-mappers 1, default is 4 \
---driver is only relevant if the connection string does not begin with jdbc:mysql://. \
 
-File-formats: text file (default), orc (?) \
+
+File-formats: text file (default), sequence file, avro, parquet, orc (?) \
 --as-sequencefile \
 --as-avrodatafile \
 --as-parquetfile \
 
 
 
-### Sqoop import to existing directories: append or –delete-target-dir
+# Sqoop import to existing directories
 
 By default sqoop import fails if target directory already exists \
 Directory can be overwritten by using –delete-target-dir\
@@ -76,7 +78,9 @@ Data can be appended to existing directories by saying –append
 
 ```
 sqoop import \
-  --connect --username --password \
+  --connect jdbc:mysql://ms.itversity.com:3306/retail_db \
+  --username retail_user \
+  --password itversity \
   --table order_items \
   --warehouse-dir /user/cloudera/sqoop_import/retail_db \
   --delete-target-dir
@@ -85,14 +89,16 @@ sqoop import \
 
 ```
 sqoop import \
-  --connect --username --password \
+  --connect jdbc:mysql://ms.itversity.com:3306/retail_db \
+  --username retail_user \
+  --password itversity \
   --table order_items \
   --warehouse-dir /user/cloudera/sqoop_import/retail_db \
   --append
 ```
 
 
-### Compression
+# Compression
 
 default: gzip \
 If compression codec is not specified, gzip is used by default\
@@ -106,7 +112,7 @@ Compression codecs: SnappyCodec, BZip2Codec, GzipCodec, and DefaultCodec\
 ```
 
 
-### split-by / boundary-query
+# split-by / boundary-query
 
 *Split logic will be applied on primary key, if exists.  \
 *For performance reason choose a column which is indexed as part of split-by clause \
@@ -115,12 +121,14 @@ Compression codecs: SnappyCodec, BZip2Codec, GzipCodec, and DefaultCodec\
 *If there are null values in the column, corresponding records from the table will be ignored \
 *Data in the split-by column need not be unique, but if there are duplicates then there can be skew in the data while importing (which means some files might be relatively bigger compared to other files)
 
+
 ```
 sqoop import \
   --Dorg.apache.sqoop.splitter.allow_text_splitter=true \
   -- ...
   --split-by order_status
 ```
+
 
 ```
 sqoop import \
@@ -129,13 +137,8 @@ sqoop import \
 ```
 
 
-### Select columns, import query results, use where
+# Import Query results, select columns, where
 
-```
-sqoop import \
-  --connect ...\
-  --columns order_item_order_id,order_item_id,order_item_subtotal \
-```
 
 ```
 sqoop import \
@@ -144,6 +147,13 @@ sqoop import \
   --target-dir /user/cloudera/sqoop_import/retail.db/order_join \
   --split-by order_id \ # We must specify the column with the index (Primary, foreign)
   --num-mappers 4
+```
+
+```
+sqoop import \
+  --connect ...\
+  --columns order_item_order_id,order_item_id,order_item_subtotal \
+
 ```
 
 
@@ -246,6 +256,7 @@ update products_replica set product_sentiment  = 'WEAK'  where product_price bet
 ```
 
 To export a table, you must first create it in MySQL. 
+
 ```
 create table retail_db.result(
 	order_date varchar(255) not null,
@@ -259,68 +270,47 @@ create table retail_db.result(
 
 # Hive
 
-hive-import:
----hive-import: will both create table in Hive and import data from the source table.
----Create table, if table does not exists
+
+Default hive import behavior: 
+---Create table if table does not exists
 ---If table already exists, data will be appended.
 
----hive-overwrite: will replace existing data with new set of data
-
----hive-database can be used to specify the database
----Instead of –hive-database, we can use database name as prefix as part of –hive-table
-
--- If you have multiple Hive installations, or hive is not in your $PATH, use the --hive-home option to identify the Hive installation directory.
-   --hive-home=/user/hive/warehouse 
+If we want to overwrite it:
+-–-hive-overwrite: will replace existing data with new set of data
 
 
-create-hive-table 
---- create-hive-table will create table in Hive based on the source table in database but will NOT transfer any data
---- create-hive-table: will fail hive import, if table already exists
---- Sqoop stores data in a temporary directory called the staging table under the user's home directory: /user/cloudera before copying data into Hive 
-    table. cloudera => /user/cloudera/products  should not exists. 
-    The temporary directory is removed after the job is done.
-
-
-(see https://stackoverflow.com/questions/31515498/when-to-use-sqoop-create-hive-table)
-
-```
- --outdir java_files (??)
-
-
-sqoop import
-  --connect -username -password 
-  --table products 
-  --warehouse-dir /user/cloudera/problem3/products_replica/input 
-  --hive-import 
-  --hive-database default 
-  --hive-table product_replica 
-   -m 1
-
-
-sqoop import
-  --connect -username -password 
-  --table products 
-  --create-hive-table 
-
-
-sqoop create-hive-table 
---connect jdbc:mysql://localhost:3306/hadoopexample 
---table employees 
-
-
-```
-
-Sonderfall: import-all-tables
 ```
 sqoop import-all-tables \
   --connect -username -password 
   --hive-import \
   --hive-overwrite \
-  --hive-database "sqoop_import_test" #Select database
+  --hive-database "sqoop_import_test" #You can choose the database tou want
   --compress \
   --compression-codec org.apache.hadoop.io.compress.SnappyCodec \
   --outdir java_files
 ```
+
+If table does not exist, we could add --hive-create-table.
+–- create-hive-table: will fail hive import, if table already exists
+-- Sqoop stores data in a temporary directory called the staging table under the user's home directory :  /user/cloudera before copying data into Hive table. cloudera => /user/cloudera/department should not exists. 
+The temporary directory is removed after the job is done.
+
+```
+sqoop import 
+ --connect -username -password 
+ --table=departments 
+ --hive-home=/user/hive/warehouse 
+ --hive-import 
+ --hive-overwrite 
+ --create-hive-table 
+ --hive-table=sqoop_import.departments
+ --outdir java_files
+
+```
+
+–-hive-database can be used to specify the database
+--Instead of –hive-database, we can use database name as prefix as part of –hive-table
+
 
 # Export
 
