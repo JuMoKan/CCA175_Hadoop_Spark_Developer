@@ -27,6 +27,7 @@ customer = sqlContext.read.parquet('/user/cloudera/import_export/ex_1/imp_custom
 ### Step 3: Convert into csv file using gzip compression
 documentation: pyspark package - RDD - saveAsTextFile
 
+
 ```
 codec = "org.apache.hadoop.io.compress.GzipCodec"
 
