@@ -15,11 +15,11 @@ CREATE TABLE customer_anonym  as
 ### Create (empty) customers_anonym table in mysql
 ```
 create table retail_db.customer_anonym(
-	customer_id int,
+    customer_id int,
     customer_city varchar(255), 
     customer_state varchar(255), 
     customer_zipcode varchar(255),
-	constraint pk_order_result primary key (customer_id));
+    constraint pk_order_result primary key (customer_id));
 ```
 
 
