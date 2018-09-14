@@ -1,8 +1,8 @@
-# Exercise:
+## Exercise: import to hdfs -- join orders & customers -- save as textfile
+
 Import orders and customers table from mysql into hdfs location `/user/cloudera/ex_1/orders/`  `/customers/`.   
-Join data to find out customers, whose orders status is "pending".  
-Output should have customer_id, customer_fname, order_id and order_status.                                            
-Save result as textfile in /user/cloudera/exc_1/output  
+Select customers, with order status "pending".  
+Save customer_id, customer_fname, order_id and order_status as textfile in /user/cloudera/exc_1/output  
 
 
 
@@ -55,8 +55,6 @@ orders = sc.textFile("/user/cloudera/ex_1/orders/")
 from pyspark.sql.types import * 
 from pyspark.sql.functions import *
 orders = orders.withColumn('order_date', to_date(orders.order_date))
-
-
 ```
 
 ## Step 3: Join as SQL Statement  
