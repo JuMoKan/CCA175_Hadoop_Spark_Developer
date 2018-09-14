@@ -1,8 +1,8 @@
-# Excercise:
+## Excercise: Import hive -- select customers -- save as parquet
 
-Import customers table from mysql to hive. 
-Get customers who live in Chicago.
-Save the results in HDFS /user/cloudera/hive_ex_1 as parquet file.
+Import customers table from mysql to hive.  
+Get customers who live in Chicago.  
+Save the results in HDFS /user/cloudera/hive_ex_1 as parquet file.  
 
 
 ## Import customers table from mysql to hive
@@ -30,6 +30,10 @@ customers_chicago = hiveContext.sql("""
 	 from default.customers
 	 where customer_city = "Chicago"
 """)
+
+
+
+
 ```
 ## Save the results in HDFS /user/cloudera/hive_ex_1  as parquet file.
 
