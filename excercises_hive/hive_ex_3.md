@@ -37,6 +37,6 @@ sqoop export \
 ```
 
 Links  
-<> http://www.alpha-epsilon.de/cca175/2017/07/21/using-sqoop-to-move-data-between-hdfs-and-mysql/
+<!--- http://www.alpha-epsilon.de/cca175/2017/07/21/using-sqoop-to-move-data-between-hdfs-and-mysql--->
 http://hadooped.blogspot.com/2013/06/apache-sqoop-part-3-data-transfer.html>
 https://community.hortonworks.com/questions/22425/sqoop-export-from-hive-table-specifying-delimiters.html
