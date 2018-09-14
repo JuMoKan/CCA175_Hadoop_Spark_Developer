@@ -1,11 +1,11 @@
 
-Excercise: sqoop import parquet -- select products by price -- save as json file use 
+## Excercise: sqoop import parquet -- select products by price -- save as json 
 
-Import mysql orders table into hdfs (/user/cloudera/products) as parquet file.
-Select all products over 200$ and save as json file using snappy compression. 
-Save to /user/cloudera/products_o200
+Import mysql orders table into hdfs (/user/cloudera/products) as parquet file.  
+Select all products over 200$ and save as json file using snappy compression.   
+Save to /user/cloudera/products_o200  
 
-###Step 1: Import from mysql to hdfs
+### Step 1: Import from mysql to hdfs
 
 ```
 sqoop import --connect "jdbc:mysql://localhost/retail_db" --username root --password cloudera \
@@ -15,7 +15,7 @@ sqoop import --connect "jdbc:mysql://localhost/retail_db" --username root --pass
 ```
 
 
-###Step 2: Select products over 200$ 
+### Step 2: Select products over 200$ 
 
 ```
 products = sqlContext.read.parquet('/user/cloudera/products')
@@ -31,7 +31,7 @@ products_o200 = sqlContext.sql("""
 ```
 
 
-###Step 3: save as json
+### Step 3: save as json
 
 ```
 codec = "org.apache.hadoop.io.compress.GzipCodec"
