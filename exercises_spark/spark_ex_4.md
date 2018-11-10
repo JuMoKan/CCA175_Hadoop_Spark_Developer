@@ -60,9 +60,9 @@ products\
     .filter(products['productPrice']<100)\
     .groupby('productCatID')\
     .agg(F.count(products.productID).alias('N_Products'),\
-	    F.min(products.productPrice).alias('Min_Price'),\
-	    F.max(products.productPrice).alias('Max_Price')).\
-	sort('productCatID', asending=True).show()
+	     F.min(products.productPrice).alias('Min_Price'),\
+	     F.max(products.productPrice).alias('Max_Price'))\
+	.sort('productCatID', asending=True).show()
 
 ```
 
