@@ -1,7 +1,7 @@
-Import all tables from mysql into hdfs files to data warehouse directory retail_stage.db.
+Import all tables from mysql into hdfs files to data warehouse directory retail_stage.db.  
 Import as avro data using snappy compression.
 
-Create a metastore table named orders_sqoop that point to the orders data.
+Create a metastore table named orders_sqoop that point to the orders data.  
 Show all orders of the day when most orders where placed. 
 
 ```
@@ -21,7 +21,7 @@ hadoop fs -ls /user/hive/warehouse
 hadoop fs -ls /user/hive/warehouse/retail_stage.db
 ```
 
-
+**Create a metastore table named orders_sqoop that point to the orders data.** 
 ```
 hadoop fs -get /user/hive/warehouse/retail_stage.db/orders/part-m-00000.avro
 hadoop fs -get /user/cloudera/retail_stage.db/orders/part-m-00000.avro
@@ -43,9 +43,9 @@ LOCATION '/user/cloudera/retail_stage.db/orders'
 TBLPROPERTIES ('avro.schema.url'='/user/hive/schemas/order/orders.avsc');
 ```
 
-Could not load .avsc file into '/user/hive/schemas/order/'
+Could not load .avsc file into '/user/hive/schemas/order/'  
 Check permission on folder
-https://stackoverflow.com/questions/38290847/unable-to-read-schema-from-given-path-hdfs-avsc
+https://stackoverflow.com/questions/38290847/unable-to-read-schema-from-given-path-hdfs-avsc  
 General on avro: https://www.cloudera.com/documentation/enterprise/5-14-x/topics/cdh_ig_avro_usage.html
 
 
@@ -74,8 +74,8 @@ LOCATION '/user/hive/warehouse/retail_stage.db/orders'
 TBLPROPERTIES ('avro.schema.url'='orders.avsc');
 ```
 
-Show all orders of the day when most orders where placed.
-Lesson learned: specify table names orders_sqoop.order_date in ... , just order_date in doesn't workd
+**Show all orders of the day when most orders where placed.**  
+Lesson learned: specify orders_sqoop.order_date in ... , just order_date in doesn't work
 ```
 select *
 from orders_sqoop 
