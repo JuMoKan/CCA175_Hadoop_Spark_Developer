@@ -1,3 +1,16 @@
+## Mysql
+mysql -uroot -pcloudera 
+
+
+## Hive check settings
+https://stackoverflow.com/questions/42239139/how-can-i-check-the-settings-in-hive-cli
+SET hive.default.fileformat;
+
+## Work with dates
+* http://dwgeek.com/hadoop-hive-date-functions-examples.html/
+* https://stackoverflow.com/questions/45014172/how-to-convert-bigint-to-datetime-in-hive
+* https://community.hortonworks.com/questions/82797/hive-convert-int-timestamp-to-date.html
+
 ## Create tables and loading data
 
 Documentation: Hive Documentation --> User Documentation --> DDL
