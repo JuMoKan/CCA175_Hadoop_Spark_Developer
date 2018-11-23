@@ -16,8 +16,8 @@
 
 
 * avro-files
-    * import com.databricks.spark.avro._;
+    * import com.databricks.spark.avro._;  
       sqlContext.read.avro(<path to location>);
-    * sqlContext.setConf(“spark.sql.avro.compression.codec”,”snappy”) //use snappy, deflate, uncompressed;
+    * sqlContext.setConf(“spark.sql.avro.compression.codec”,”snappy”) //use snappy, deflate, uncompressed;  
       dataFrame.write.avro(<path to location>);
 
