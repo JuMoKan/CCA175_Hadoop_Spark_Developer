@@ -1,8 +1,8 @@
-Import orders and order_items table from mysl to hdfs to /user/cloudera/spark_ex_5/orders resp. order-items.                             
-Import files as Avro File and use snappy compression.
-Load data into spark.
-Calculate total orders and total amount per status per day.
-Save result as as parquet file and as csv file.
+Import orders and order_items table from mysl to hdfs to /user/cloudera/spark_ex_5/orders resp. order-items.                               
+Import files as Avro File and use snappy compression.  
+Load data into spark.  
+Calculate total orders and total amount per status per day.  
+Save result as as parquet file and as csv file.  
 
 ```
 sqoop-import \
@@ -28,6 +28,8 @@ sqoop-import \
 --compression-codec org.apache.hadoop.io.compress.SnappyCodec 
 ```
 
+
+Calculate total orders and total amount per status per day.
 ```
 from pyspark.sql import SQLContext
 sqlContext = SQLContext(sc)
@@ -37,7 +39,6 @@ order_items = sqlContext.read.format("com.databricks.spark.avro").load("/user/cl
 order_items.registerTempTable("order_items")
 ```
 
-Calculate total orders and total amount per status per day.
 ```
 N_Total_per_day = sqlContext.sql("""
     select o.order_date, count(distinct o.order_id) as N_orders, sum(oi.order_item_subtotal) as Total_amount
