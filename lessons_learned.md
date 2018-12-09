@@ -47,6 +47,7 @@
     """)
     ```
 
+    this worked:
 
     ```
     top_5_products_by_category_prep = hiveContext.sql("""
@@ -54,6 +55,4 @@
     from products
     order by product_category_id, product_rank
     """)
-
-
     ```
