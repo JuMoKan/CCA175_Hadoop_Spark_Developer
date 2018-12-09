@@ -37,7 +37,7 @@
     * orders = orders.withColumn('order_date', to_date(orders.order_date))
 
 
-* hive rank() over () function
+* hive rank() over () function  
     did not work:
     ```
     top_5_products_by_category_prep = hiveContext.sql("""
@@ -55,11 +55,5 @@
     order by product_category_id, product_rank
     """)
 
-    test = hiveContext.sql("""
-    select product_category_id, product_id, product_name, product_price, rank() over (partition by product_category_id order by product_price desc) as product_rank
-    from products
-    order by product_category_id, product_rank
-    where product_rank <= 5
-    """)
 
     ```
