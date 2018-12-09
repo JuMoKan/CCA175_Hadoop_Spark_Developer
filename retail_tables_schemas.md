@@ -9,14 +9,6 @@ customer_city VARCHAR(45) \
 customer_state VARCHER(45) \
 customer_zipcode VARCHAR(45)
 
-
-# orders-schema
-order_id INT(11) \
-order_date DATETIME \
-order_customer_id INT(11) \
-order_status VARCHAR(45) 
-
-
 # products-schema
 product_id INT(11) \
 product_category_id INT(11) \
@@ -25,3 +17,17 @@ product_description VARCHAR(255) \
 product_price FLOAT \
 product_image VARCHAR(255) 
 
+# orders-schema
+order_id INT(11) \
+order_date DATETIME \
+order_customer_id INT(11) \
+order_status VARCHAR(45) 
+
+
+#order-items schema
+order_item_id INT(11) \
+order_item_order_id INT(11) \
+order_item_product_id INT(11) \
+order_item_quantity  TINYINT(4) \
+order_item_subtotal FLOAT \
+order_item_product_price FLOAT \
