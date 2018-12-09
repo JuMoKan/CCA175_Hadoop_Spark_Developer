@@ -24,7 +24,7 @@ order_customer_id INT(11) \
 order_status VARCHAR(45) 
 
 
-#order-items schema
+# order-items schema
 order_item_id INT(11) \
 order_item_order_id INT(11) \
 order_item_product_id INT(11) \
