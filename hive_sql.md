@@ -41,7 +41,7 @@ SET hive.default.fileformat;
 
 ## Hive: Create tables
 
-Documentation: Hive Documentation --> User Documentation --> DDL
+Documentation: Hive Documentation --> User Documentation --> DDL  
 https://www.dezyre.com/hadoop-tutorial/apache-hive-tutorial-tables
 
 hive-shell
@@ -83,34 +83,63 @@ Load local data
 hive_context.sql("load data local inpath '/home/cloudera/TEST_text_from_local.csv' (overwrite) into table default.myTab2 ")
 ```
 
-Load drom other tables in hive
+Load from other tables in hive
 ```
 hive_context.sql("create table if not exists default.myTab3 AS SELECT * FROM default.myTab")
 hive_context.sql("insert into table default.myTab2 SELECT * FROM default.myTab")
 ```
 
+Write from spark to hive
+```
+sqoop import \
+--connect "jdbc:mysql://localhost/retail_db" \
+--username retail_dba \
+--password cloudera \
+--table products \
+--columns "product_id, product_category_id, product_name"
+
+from pyspark.sql import SQLContext, Row
+sqlContext = SQLContext(sc)
+products=  sc.textFile("/user/cloudera/products") \
+.map(lambda l: l.split(",")) \
+.map(lambda p: Row(id=int(p[0]), category=p[1], name=p[2])).toDF()
+
+products=products["id", "category", "name"]
+
+hive_context = HiveContext(sc)
+hive_context.sql("CREATE TABLE default.products_cat_name (id INT, category STRING,name STRING)")
+```
+
+This is not working
+```
+products = hive_context.createDataFrame(products)
+products.registerTempTable("products")
+
+products.write.insertInto("products_cat_name")
+products.write.mode("append").saveAsTable("products_cat_name")
+```
 
 
 
 ##  Spark SQL – Queries 
-
+```
 User Documentation --> Queries (select) -->  More Select Syntax: Join
 
 select order_status,  
-       case    
-            when order_status IN ('CLOSED', 'COMPLETE') then ‘Okay’   
-            when order_status IN ('PAYMENT_REVIEW', 'PENDING', 'PENDING_PAYMENT',') then ‘Check’  
-            else 'others'  
-       end   
+    case    
+         when order_status IN ('CLOSED', 'COMPLETE') then ‘Okay’   
+         when order_status IN ('PAYMENT_REVIEW', 'PENDING', 'PENDING_PAYMENT',') then ‘Check’  
+         else 'others'  
+    end   
 from orders;  
+```
 
-
-
+```
 select o.order_id, o.order_date, o.order_status, sum(oi.order_item_subtotal)  as order_revenue  
 from orders o   
-join order_items oi  
-on o.order_id = oi.order_item_order_id  
+    join order_items oi  
+    on o.order_id = oi.order_item_order_id  
 where o.order_status in ('COMPLETE')  
 group by o.order_id, o.order_date, o.order_status  
 having sum(oi.order_item_subtotal) >= 1000;  
- 
+ ```
