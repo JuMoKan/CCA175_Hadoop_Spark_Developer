@@ -1,6 +1,30 @@
 ## Mysql
 mysql -uroot -pcloudera  
-mysql -h localhost -u root -p
+mysql -u retail_dba -p
+mysql -h localhost -u retail_db -p
+GRANT ALL PRIVILEGES ON <database_name>.* to ''@'localhost';
+
+Sqoop export: To export a table, you must first create it in MySQL. 
+```
+create table retail_db.result(
+	order_status varchar(255) not null, 
+	order_date date not null,
+	total_orders int, 
+	total_amount numeric, 
+	constraint pk_order_result primary key (order_date,order_status)); 
+```
+
+```
+create table products_replica as select * from products;
+alter table products_replica add primary key (product_id);
+alter table products_replica add column (product_grade int, product_sentiment varchar(100))
+update products_replica set product_grade = 1  where product_price > 500;
+update products_replica set product_sentiment  = 'WEAK'  where product_price between 300 and  500;
+```
+
+
+
+
 
 ## Mysql employees db
 https://github.com/datacharmer/test_db
