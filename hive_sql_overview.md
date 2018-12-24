@@ -4,7 +4,7 @@ mysql -u retail_dba -p
 mysql -h localhost -u retail_db -p
 GRANT ALL PRIVILEGES ON <database_name>.* to ''@'localhost';
 
-Sqoop export: To export a table, you must first create it in MySQL. 
+Sqoop export: To export check / create table in MySQL. 
 ```
 create table retail_db.result(
 	order_status varchar(255) not null, 
