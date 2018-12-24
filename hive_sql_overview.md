@@ -1,10 +1,17 @@
 ## Mysql
-mysql -uroot -pcloudera 
+mysql -uroot -pcloudera  
+mysql -h localhost -u root -p
 
+## Mysql employees db
+https://github.com/datacharmer/test_db
+https://dev.mysql.com/doc/employee/en/
 
 ## Hive check settings
 https://stackoverflow.com/questions/42239139/how-can-i-check-the-settings-in-hive-cli
 SET hive.default.fileformat;
+
+##Hive avro:AvroSerDe
+* https://cwiki.apache.org/confluence/display/Hive/AvroSerDe
 
 ## Work with dates
 * http://dwgeek.com/hadoop-hive-date-functions-examples.html/
@@ -14,6 +21,8 @@ SET hive.default.fileformat;
 ## Create tables and loading data
 
 Documentation: Hive Documentation --> User Documentation --> DDL
+https://www.dezyre.com/hadoop-tutorial/apache-hive-tutorial-tables
+
 
 create database retail_db;  
 use retail_db;

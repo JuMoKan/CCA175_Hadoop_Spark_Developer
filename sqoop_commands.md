@@ -14,7 +14,7 @@ sqoop list-tables \
   --password cloudera
 ```
 
-Any valid sql query can be run using sqoop eval. 
+Sqoop eval: runs sql query
 ```
 sqoop eval \
   --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
@@ -50,6 +50,7 @@ sqoop import \
   --password=cloudera \
   --table departments \
   --target-dir /user/cloudera/sqoop_import/retail.db/departments
+  --where "id > 400"
 ```
 
 Import options \
@@ -61,198 +62,27 @@ Import options \
 --num-mappers 1, default is 4 \
 --driver is only relevant if the connection string does not begin with jdbc:mysql://. \
 
-File-formats: text file (default), orc (?) \
+File-formats: text file (default)\
 --as-sequencefile \
 --as-avrodatafile \
 --as-parquetfile \
 
-
-
-### Sqoop import to existing directories: append or –delete-target-dir
-
-By default sqoop import fails if target directory already exists \
-Directory can be overwritten by using –delete-target-dir\
-Data can be appended to existing directories by saying –append
-
-```
-sqoop import \
-  --connect --username --password \
-  --table order_items \
-  --warehouse-dir /user/cloudera/sqoop_import/retail_db \
-  --delete-target-dir
-```
-
-
-```
-sqoop import \
-  --connect --username --password \
-  --table order_items \
-  --warehouse-dir /user/cloudera/sqoop_import/retail_db \
-  --append
-```
+target-dir vs. warehouse-dir \
+https://stackoverflow.com/questions/37415989/difference-between-warehouse-dir-and-target-dir-commands-in-sqoop/48277876
 
 
 ### Compression
 
-default: gzip \
-If compression codec is not specified, gzip is used by default\
-Compression codecs: SnappyCodec, BZip2Codec, GzipCodec, and DefaultCodec\
+Compression codecs: GzipCodec, SnappyCodec, BZip2Codec, DefaultCodec(?)\
+Default: gzip\
+https://hadoop.apache.org/docs/r1.2.1/api/org/apache/hadoop/io/compress/package-summary.html
 
 ```
 --compress (oder z) \
 --compression-codec org.apache.hadoop.io.compress.GzipCodec
 --compression-codec org.apache.hadoop.io.compress.SnappyCodec
+--compression-codec org.apache.hadoop.io.compress.BZip2Codec
 
-```
-
-
-### split-by / boundary-query
-
-*Split logic will be applied on primary key, if exists.  \
-*For performance reason choose a column which is indexed as part of split-by clause \
-*If primary key does not exists and if we use number of mappers more than 1, then sqoop import will fail.We can use –split-by to split on a non key column or explicitly set –num-mappers to 1 or use –auto-reset-to-one-mapper  \
-*If the primary key column or the column specified in split-by clause is non numeric type, then we need to use this additional argument -Dorg.apache.sqoop.splitter.allow_text_splitter=true \
-*If there are null values in the column, corresponding records from the table will be ignored \
-*Data in the split-by column need not be unique, but if there are duplicates then there can be skew in the data while importing (which means some files might be relatively bigger compared to other files)
-
-```
-sqoop import \
-  --Dorg.apache.sqoop.splitter.allow_text_splitter=true \
-  -- ...
-  --split-by order_status
-```
-
-```
-sqoop import \
-  --connect...\
-  --boundary-query 'select 1000, 2000'
-```
-
-
-### Select columns, import query results, use where
-
-```
-sqoop import \
-  --connect ...\
-  --columns order_item_order_id,order_item_id,order_item_subtotal \
-```
-
-```
-sqoop import \
-  --connect ...\
-  --query="select * from orders join order_items on orders.order_id = order_items.order_item_order_id where \$CONDITIONS" \
-  --target-dir /user/cloudera/sqoop_import/retail.db/order_join \
-  --split-by order_id \ # We must specify the column with the index (Primary, foreign)
-  --num-mappers 4
-```
-
-
-```
-sqoop import \
-  --connect ...\
-  --where "order_date like '2014-02%'" \
-  --where "product_id > 10000" can select a subset from the table that gets imported \
-
-
-```
-
-
-Getting delta (--where) : if there are new records in mysql database that need to be stored in HDFS.  \
---append option is used to avoid the failure (department folder already exists). \
-N+1 is the index of the first new record to be stored in HDFS.\
-
-```
-sqoop import \
-  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
-  --username=retail_dba \
-  --password=cloudera \
-  --table departments \
-  --target-dir /user/cloudera/sqoop_import/retail.db/departments \
-  --append \
-  --where "department_id > N" \ 
-  --outdir java_files
-```
-
-
-# Incremental loads
-
-```
-sqoop import \
-  --connect - username - password -target-dir 
-  --query "select * from orders where \$CONDITIONS and order_date like '2013-%'" \
-  --split-by order_id
-
-sqoop import \
-  --connect - username - password -target-dir 
-  --query "select * from orders where \$CONDITIONS and order_date like '2014-01%'" \
-  --split-by order_id \
-  --append
-```
-
-
-```
-sqoop import \
-  --connect - username - password -target-dir 
-  --table orders \
-  --where "order_date like '2014-02%'" \
-  --append
-```
-
-```
-sqoop import \
-  --connect - username - password -target-dir 
-  --table orders \
-  --check-column order_date \
-  --incremental append \
-  --last-value '2014-02-28'
-
-```
-
-
-
-
-# Check MySQL
-
-From command line, access a MySQL on localhost via
-
-```
-mysql -h localhost -u root -p
-mysql -u retail_dba -p
-mysql -h localhost -u retail_dba -p
-```
-
-
-Sqoop needs permissions to access the tables. 
-You grant these permissions from MySQL like so:
-
-```
-GRANT ALL PRIVILEGES ON <database_name>.* to ''@'localhost';
-```
-
-
-```
-show databases;  -- list all available databases
-use retail_db;   -- switch to this database
-show tables;
-select * from customers limit 10;  -- query the table
-```
-
-```
-create table products_replica as select * from products
-alter table products_replica add primary key (product_id);
-alter table products_replica add column (product_grade int, product_sentiment varchar(100))
-update products_replica set product_grade = 1  where product_price > 500;
-update products_replica set product_sentiment  = 'WEAK'  where product_price between 300 and  500;
-```
-
-To export a table, you must first create it in MySQL. 
-```
-create table retail_db.result(
-	order_date varchar(255) not null,
-	order_status varchar(255) not null, 
-	total_orders int, 
-	total_amount numeric, 
-	constraint pk_order_result primary key (order_date,order_status)); 
 ```
 
 
@@ -322,7 +152,136 @@ sqoop import-all-tables \
   --outdir java_files
 ```
 
-# Export
+
+### Sqoop import to existing directories: append or –delete-target-dir
+
+By default sqoop import fails if target directory already exists \
+Directory can be overwritten by using –delete-target-dir\
+Data can be appended to existing directories by saying –append
+
+```
+sqoop import \
+  --connect --username --password \
+  --table order_items \
+  --warehouse-dir /user/cloudera/sqoop_import/retail_db \
+  --delete-target-dir
+```
+
+
+```
+sqoop import \
+  --connect --username --password \
+  --table order_items \
+  --warehouse-dir /user/cloudera/sqoop_import/retail_db \
+  --append
+```
+
+
+### Split-by / boundary-query
+
+*Split logic will be applied on primary key, if exists.  \
+*For performance reason choose a column which is indexed as part of split-by clause \
+*If primary key does not exists and if we use number of mappers more than 1, then sqoop import will fail.We can use –split-by to split on a non key column or explicitly set –num-mappers to 1 or use –auto-reset-to-one-mapper  \
+*If the primary key column or the column specified in split-by clause is non numeric type, then we need to use this additional argument -Dorg.apache.sqoop.splitter.allow_text_splitter=true \
+*If there are null values in the column, corresponding records from the table will be ignored \
+*Data in the split-by column need not be unique, but if there are duplicates then there can be skew in the data while importing (which means some files might be relatively bigger compared to other files)
+
+```
+sqoop import \
+  --Dorg.apache.sqoop.splitter.allow_text_splitter=true \
+  -- ...
+  --split-by order_status
+```
+
+```
+sqoop import \
+  --connect...\
+  --boundary-query 'select 1000, 2000'
+```
+
+
+### Select columns, import query results, use where
+
+```
+sqoop import \
+  --connect ...\
+  --columns order_item_order_id,order_item_id,order_item_subtotal \
+```
+
+```
+sqoop import \
+  --connect ...\
+  --query="select * from orders join order_items on orders.order_id = order_items.order_item_order_id where \$CONDITIONS" \
+  --target-dir /user/cloudera/sqoop_import/retail.db/order_join \
+  --split-by order_id \ # We must specify the column with the index (Primary, foreign)
+  --num-mappers 4
+```
+
+
+```
+sqoop import \
+  --connect ...\
+  --where "order_date like '2014-02%'" \
+  --where "product_id > 10000" can select a subset from the table that gets imported \
+
+
+```
+
+
+Getting delta (--where) : if there are new records in mysql database that need to be stored in HDFS.  \
+--append option is used to avoid the failure (department folder already exists). \
+N+1 is the index of the first new record to be stored in HDFS.\
+
+```
+sqoop import \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table departments \
+  --target-dir /user/cloudera/sqoop_import/retail.db/departments \
+  --append \
+  --where "department_id > N" \ 
+  --outdir java_files
+```
+
+
+### Incremental loads
+
+```
+sqoop import \
+  --connect - username - password -target-dir 
+  --query "select * from orders where \$CONDITIONS and order_date like '2013-%'" \
+  --split-by order_id
+
+sqoop import \
+  --connect - username - password -target-dir 
+  --query "select * from orders where \$CONDITIONS and order_date like '2014-01%'" \
+  --split-by order_id \
+  --append
+```
+
+
+```
+sqoop import \
+  --connect - username - password -target-dir 
+  --table orders \
+  --where "order_date like '2014-02%'" \
+  --append
+```
+
+```
+sqoop import \
+  --connect - username - password -target-dir 
+  --table orders \
+  --check-column order_date \
+  --incremental append \
+  --last-value '2014-02-28'
+
+```
+
+
+
+### Export
 
 ```
 sqoop export
@@ -332,19 +291,27 @@ sqoop export
   --table departments \
   --export-dir /user/cloudera/sqoop_export/departments  \
   --export-dir /user/hive/warehouse/<database_name>/<table_name> (if export form Hive internal table)  \
-  --fields-terminated-by '\0001' (default field delimiter is ASCII value 1 there.) \
+```
+Export hive table
+* export Hive internal table, export-dir: /user/hive/warehouse/...
+* export hive table: --hcatalog-table name_of_hive_table
+
+
+```
+  --fields-terminated-by '\0001' (when exporting from Hive, in Hive default field delimiter is ASCII value 1) \
+  (to recode from the corresponding values to NULL in the database.)
   --input-null-string   "null" \
-  --input-null-non-string "null"  (to recode from the corresponding values to NULL in the database.) \
+  --input-null-non-string "null" \
   --update-mode allowinsert  (to insert while updatin)\
   --update-key product_id   (--update key {primary_key} to update rows)\
   --columns "col1, col2, col3" \
   --num-mappers 2 \
   --batch \
-  --outdir java_files
 ```
 
-# Sqoop merge
 
+
+### Sqoop merge
 ```
 sqoop merge \
 --class-name products_replica \
@@ -356,7 +323,7 @@ sqoop merge \
 ```
 
 
-# Sqoop jobs
+### Sqoop jobs
 
 ```
 sqoop job --create sqoop_job \
