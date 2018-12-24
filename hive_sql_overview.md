@@ -1,7 +1,7 @@
 ## Mysql
 mysql -uroot -pcloudera  
 mysql -u retail_dba -p
-mysql -h localhost -u retail_db -p
+mysql -h localhost -u retail_db -p  
 GRANT ALL PRIVILEGES ON <database_name>.* to ''@'localhost';
 
 Sqoop export: To export check / create table in MySQL. 
@@ -22,32 +22,30 @@ update products_replica set product_grade = 1  where product_price > 500;
 update products_replica set product_sentiment  = 'WEAK'  where product_price between 300 and  500;
 ```
 
-
-
-
-
 ## Mysql employees db
 https://github.com/datacharmer/test_db
 https://dev.mysql.com/doc/employee/en/
 
-## Hive check settings
+
+## Hive: check settings
 https://stackoverflow.com/questions/42239139/how-can-i-check-the-settings-in-hive-cli
 SET hive.default.fileformat;
 
-##Hive avro:AvroSerDe
+## Hive: avro:AvroSerDe
 * https://cwiki.apache.org/confluence/display/Hive/AvroSerDe
 
-## Work with dates
+## Hive: Work with dates
 * http://dwgeek.com/hadoop-hive-date-functions-examples.html/
 * https://stackoverflow.com/questions/45014172/how-to-convert-bigint-to-datetime-in-hive
 * https://community.hortonworks.com/questions/82797/hive-convert-int-timestamp-to-date.html
 
-## Create tables and loading data
+## Hive: Create tables
 
 Documentation: Hive Documentation --> User Documentation --> DDL
 https://www.dezyre.com/hadoop-tutorial/apache-hive-tutorial-tables
 
-
+hive-shell
+```
 create database retail_db;  
 use retail_db;
 
@@ -59,9 +57,38 @@ create table orders (
 )  
 row format delimited fields terminated by ','  
 stored as textfile;  
+```
 
-load data local inpath '/data/retail_db/orders' into table orders;  
-insert into table orders select * from  retail_db.orders;  
+pyspark-shell
+```
+hive_context = HiveContext(sc)
+
+hive_context.sql("CREATE TABLE IF NOT EXISTS default.myTab2 (plz INT, city STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','")
+hive_context.sql("CREATE TABLE IF NOT EXISTS retail_db.myTab2 (plz INT, city STRING)")
+
+```
+
+## Hive: Load data into tables
+
+Load data from hdfs
+```
+hdfs dfs -copyFromLocal /home/cloudera/TEST_text_from_local.csv /user/cloudera/TEST_text_from_local.csv
+
+
+hive_context.sql("load data inpath '/user/cloudera/TEST_text_from_local.csv' (overwrite) into table default.myTab ")
+```
+
+Load local data
+```
+hive_context.sql("load data local inpath '/home/cloudera/TEST_text_from_local.csv' (overwrite) into table default.myTab2 ")
+```
+
+Load drom other tables in hive
+```
+hive_context.sql("create table if not exists default.myTab3 AS SELECT * FROM default.myTab")
+hive_context.sql("insert into table default.myTab2 SELECT * FROM default.myTab")
+```
+
 
 
 
