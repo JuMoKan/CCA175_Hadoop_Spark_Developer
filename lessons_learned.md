@@ -13,7 +13,6 @@
 
 **Ĺessons learned data I/O** 
 
-
 * textfiles
     * text_from_hdfs_lines = sc.textFile("/user/..") dont' forget the / before user
     * read: Spark SQL, DataFrames and Datasets Guide --> Interoperating with RDDs --> Inferring the Schema Using Reflection
@@ -38,7 +37,7 @@
 
 
 
-** Spark: convert to date**
+**Spark: convert to date**
     * from pyspark.sql.types import * 
     * from pyspark.sql.functions import *
     * orders = orders.withColumn('order_date', to_date(orders.order_date))
