@@ -45,7 +45,7 @@
     * orders = orders.withColumn('order_date', from_unixtime(orders.order_date/1000)) 
 
 
-**hive rank() over () function**
+**hive rank() over () function**  
     did not work:
     ```
     top_5_products_by_category_prep = hiveContext.sql("""
