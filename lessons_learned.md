@@ -45,6 +45,27 @@
     * orders = orders.withColumn('order_date', from_unixtime(orders.order_date/1000)) 
 
 
+**hive rank() over () function**
+    did not work:
+    ```
+    top_5_products_by_category_prep = hiveContext.sql("""
+    select product_category_id, product_id, product_name, product_price, rank() over (partition by product_category_id order by product_price desc) as product_rank
+    from products
+    order by product_category_id, rank() over (partition by product_category_id order by product_price desc)
+    """)
+    ```
+
+    this worked:
+
+    ```
+    top_5_products_by_category_prep = hiveContext.sql("""
+    select product_category_id, product_id, product_name, product_price, rank() over (partition by product_category_id order by product_price desc) as product_rank
+    from products
+    order by product_category_id, product_rank
+    """)
+    ```
+
+
 
 **Ĺessons learned Spark Joins** 
 
@@ -105,23 +126,3 @@ join_sql.show()
 
 
 
-
-* hive rank() over () function  
-    did not work:
-    ```
-    top_5_products_by_category_prep = hiveContext.sql("""
-    select product_category_id, product_id, product_name, product_price, rank() over (partition by product_category_id order by product_price desc) as product_rank
-    from products
-    order by product_category_id, rank() over (partition by product_category_id order by product_price desc)
-    """)
-    ```
-
-    this worked:
-
-    ```
-    top_5_products_by_category_prep = hiveContext.sql("""
-    select product_category_id, product_id, product_name, product_price, rank() over (partition by product_category_id order by product_price desc) as product_rank
-    from products
-    order by product_category_id, product_rank
-    """)
-    ```
