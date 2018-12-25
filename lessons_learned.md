@@ -42,7 +42,7 @@
     * from pyspark.sql.types import * 
     * from pyspark.sql.functions import * 
     * orders = orders.withColumn('order_date', to_date(orders.order_date)) 
-    * orders = orders.withColumn('order_date', F.from_unixtime(orders.order_date/1000)) 
+    * orders = orders.withColumn('order_date', from_unixtime(orders.order_date/1000)) 
 
 
 
