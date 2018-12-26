@@ -88,34 +88,19 @@ https://hadoop.apache.org/docs/r1.2.1/api/org/apache/hadoop/io/compress/package-
 
 ### Hive
 
-hive-import:
----hive-import: will both create table in Hive and import data from the source table.
----Create table, if table does not exists
----If table already exists, data will be appended.
-
----hive-overwrite: will replace existing data with new set of data
-
----hive-database can be used to specify the database
----Instead of –hive-database, we can use database name as prefix as part of –hive-table
-
--- If you have multiple Hive installations, or hive is not in your $PATH, use the --hive-home option to identify the Hive installation directory.
-   --hive-home=/user/hive/warehouse 
+-- hive-import: creates table in Hive (if table does not exist) and imports data. If table already exists, data will be appended.
+-- hive-database: can be used to specify the database. Or use database name as prefix as part of –hive-table
+-- hive-home: /user/hive/warehouse 
 
 
-create-hive-table 
---- create-hive-table will create table in Hive based on the source table in database but will NOT transfer any data
---- create-hive-table: will fail hive import, if table already exists
---- Sqoop stores data in a temporary directory called the staging table under the user's home directory: /user/cloudera before copying data into Hive 
-    table. cloudera => /user/cloudera/products  should not exists. 
-    The temporary directory is removed after the job is done.
+sqoop create-hive-table 
+-- sqoop create-hive-table will create table in Hive based on the source table in database but will NOT transfer any data
+-- https://stackoverflow.com/questions/31515498/when-to-use-sqoop-create-hive-table
+-- Sqoop stores data in a temporary directory called the staging table under the user's home directory: /user/cloudera before copying data into Hive 
+    table. /user/cloudera/products  should not exists. The temporary directory is removed after the job is done.
 
-
-(see https://stackoverflow.com/questions/31515498/when-to-use-sqoop-create-hive-table)
 
 ```
- --outdir java_files (??)
-
-
 sqoop import
   --connect -username -password 
   --table products 
