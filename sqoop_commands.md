@@ -1,5 +1,4 @@
-### Get information about databases, tables and data (run sql queries using sqoop eval)
-
+### Get information about databases, tables and data 
 ```
 sqoop list-databases \
   --connect "jdbc:mysql://quickstart.cloudera:3306" \
@@ -14,7 +13,7 @@ sqoop list-tables \
   --password cloudera
 ```
 
-Sqoop eval: runs sql query
+### Sqoop eval: run sql queries
 ```
 sqoop eval \
   --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
@@ -31,9 +30,9 @@ sqoop eval \
 ```
 sqoop import-all-tables \
   --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
-  --username=retail_dba \
-  --password=cloudera \
-  --warehouse-dir=/user/cloudera/sqoop_import
+  --username retail_dba \
+  --password cloudera \
+  --warehouse-dir /user/cloudera/sqoop_import
 ```
 
 sqoop import-all-tables \
@@ -46,10 +45,10 @@ sqoop import-all-tables \
 ```
 sqoop import \
   --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
-  --username=retail_dba \
-  --password=cloudera \
+  --username retail_dba \
+  --password cloudera \
   --table departments \
-  --target-dir /user/cloudera/sqoop_import/retail.db/departments
+  --target-dir /user/cloudera/sqoop_import/retail.db/departments \
   --where "id > 400"
 ```
 
@@ -65,7 +64,7 @@ Import options \
 File-formats: text file (default)\
 --as-sequencefile \
 --as-avrodatafile \
---as-parquetfile \
+--as-parquetfile
 
 target-dir vs. warehouse-dir \
 https://stackoverflow.com/questions/37415989/difference-between-warehouse-dir-and-target-dir-commands-in-sqoop/48277876
@@ -87,7 +86,7 @@ https://hadoop.apache.org/docs/r1.2.1/api/org/apache/hadoop/io/compress/package-
 
 
 
-# Hive
+### Hive
 
 hive-import:
 ---hive-import: will both create table in Hive and import data from the source table.
@@ -205,7 +204,7 @@ sqoop import \
 ```
 sqoop import \
   --connect ...\
-  --columns order_item_order_id,order_item_id,order_item_subtotal \
+  --columns "order_item_order_id,order_item_id,order_item_subtotal" \
 ```
 
 ```
@@ -228,8 +227,10 @@ sqoop import \
 ```
 
 
+### Incremental loads
+
 Getting delta (--where) : if there are new records in mysql database that need to be stored in HDFS.  \
---append option is used to avoid the failure (department folder already exists). \
+--append option is used to avoid the failure (departments folder already exists). \
 N+1 is the index of the first new record to be stored in HDFS.\
 
 ```
@@ -241,11 +242,19 @@ sqoop import \
   --target-dir /user/cloudera/sqoop_import/retail.db/departments \
   --append \
   --where "department_id > N" \ 
-  --outdir java_files
+```
+
+```
+sqoop import \
+  --connect - username - password -target-dir 
+  --table orders \
+  --where "order_date like '2014-02%'" \
+  --append
 ```
 
 
-### Incremental loads
+\$CONDITIONS and split-by
+
 
 ```
 sqoop import \
@@ -261,13 +270,7 @@ sqoop import \
 ```
 
 
-```
-sqoop import \
-  --connect - username - password -target-dir 
-  --table orders \
-  --where "order_date like '2014-02%'" \
-  --append
-```
+check-column & incremental append & last-value
 
 ```
 sqoop import \
@@ -290,10 +293,10 @@ sqoop export
   --password cloudera \
   --table departments \
   --export-dir /user/cloudera/sqoop_export/departments  \
-  --export-dir /user/hive/warehouse/<database_name>/<table_name> (if export form Hive internal table)  \
+  --export-dir /user/hive/warehouse/<database_name>/<table_name> (export Hive internal table)  \
 ```
 Export hive table
-* export Hive internal table, export-dir: /user/hive/warehouse/...
+* export hive internal table, export-dir: /user/hive/warehouse/...
 * export hive table: --hcatalog-table name_of_hive_table
 
 
