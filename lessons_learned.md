@@ -1,7 +1,13 @@
 **Ĺessons learned:**
 * sqoop import: no blank after \
+* select concat(customer_fname,'\t',customer_lname,':',customer_city) from ... where ..like '%Text%'
 * enable hive-metastore in spark: sudo ln -s /usr/lib/hive/conf/hive-site.xml /usr/lib/spark/conf/hive-site.xml
+    * http://community.cloudera.com/t5/Advanced-Analytics-Apache-Spark/how-to-access-the-hive-tables-from-spark-shell/m-p/36653
+    * https://stackoverflow.com/questions/36051091/query-hive-table-in-pyspark
+
+
 * für sum/count/rank () over (partitioned by .. ): hiveContext nicht sqlContext nutzen
+* sqoop export: make sure mysql table has same data-type as export-table
 * Achtung: sqlContext nur einmal öffnen / definieren, sonst werden Tabllen nicht registriert
     df.registerTempTable("df")
     all_tables = sqlContext.tables()
@@ -9,6 +15,8 @@
 
 * Path to compression codecs: Cloudera Product Documentation --> CDH --> All Catgories --> Compression --> Data Compression 
 * Link zu compression codecs: https://www.cloudera.com/documentation/enterprise/6/6.0/topics/introduction_compression.html#concept_wlk_hgy_pv
+* chmod: 1: execute only, 2: write only, 3: write and execute, 4  read only chmod 765 /user/../*
+* parts.map(lambda p: Row(product_id = int(p[0]), --> make sure to start with 0 p[0]
 
 
 **Ĺessons learned data I/O** 
@@ -19,12 +27,14 @@
     * after read / before write check order of columns str(x[i]) or not !
     * write: df.repartition(1).rdd.map(lambda x: str(x[0])+ "," + x[1] + "," + x[2])
 
-
 * avro-files
     * sqlContext.setConf("spark.sql.avro.compression.codec","snappy");
     * df = sqlContext.read.format("com.databricks.spark.avro").load("/tmp/file.avro")
     * df.write.format("com.databricks.spark.avro").save("/tmp/output");
 
+* json files: set compression codec
+    * orders_avro_snappy.toJSON().saveAsTextFile("/user/cloudera/problem5/json-gzip2", compressionCodecClass="org.apache.hadoop.io.compress.GzipCodec")
+    * did not work: sqlContext.setConf("spark.sql.json.compression.codec", "gzip") orders_avro_snappy.write.json("/user/cloudera/problem5/json-gzip")
 
 * set compression codec: 
     * sqlContext.setConf(“spark.sql.parquet.compression.codec”,”gzip”)
@@ -35,6 +45,7 @@
     * rdd.read bzw. rdd.write  
     * df.repartition(1).rdd.map(lambda x: (str(x[0]), str(x[0])+ "," + str(x[1]) + "," + x[2])).saveAsSequenceFile("/user/cloudera/convert_ex3/sequence")
 
+* csv: df.write.format("com.databricks.spark.csv").save(path)
 
 
 **Spark: convert to date**
@@ -47,7 +58,7 @@
 
 **hive rank() over () function**  
     did not work:
-    
+
     ```
     top_5_products_by_category_prep = hiveContext.sql("""
     select product_category_id, product_id, product_name, product_price, rank() over (partition by product_category_id order by product_price desc) as product_rank
