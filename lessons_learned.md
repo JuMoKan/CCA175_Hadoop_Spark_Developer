@@ -1,22 +1,37 @@
 **Ĺessons learned:**
-* sqoop import: no blank after \
-* select concat(customer_fname,'\t',customer_lname,':',customer_city) from ... where ..like '%Text%'
+
+
+* Hive Operators and User-Defined Functions: select concat(customer_fname,'\t',customer_lname,':',customer_city) from ... where ..like '%Text%'
 * enable hive-metastore in spark: sudo ln -s /usr/lib/hive/conf/hive-site.xml /usr/lib/spark/conf/hive-site.xml
     * http://community.cloudera.com/t5/Advanced-Analytics-Apache-Spark/how-to-access-the-hive-tables-from-spark-shell/m-p/36653
     * https://stackoverflow.com/questions/36051091/query-hive-table-in-pyspark
 
 
 * für sum/count/rank () over (partitioned by .. ): hiveContext nicht sqlContext nutzen
+
+* sqoop import: no blank after \
 * sqoop export: make sure mysql table has same data-type as export-table
+
 * Achtung: sqlContext nur einmal öffnen / definieren, sonst werden Tabllen nicht registriert
     df.registerTempTable("df")
     all_tables = sqlContext.tables()
     all_tables.show()
 
-* Path to compression codecs: Cloudera Product Documentation --> CDH --> All Catgories --> Compression --> Data Compression 
-* Link zu compression codecs: https://www.cloudera.com/documentation/enterprise/6/6.0/topics/introduction_compression.html#concept_wlk_hgy_pv
+* Compression codecs: 
+    * Cloudera Product Documentation --> CDH --> All Catgories --> Compression --> Data Compression 
+    * Link: https://www.cloudera.com/documentation/enterprise/6/6.0/topics/introduction_compression.html#concept_wlk_hgy_pv
+
 * chmod: 1: execute only, 2: write only, 3: write and execute, 4  read only chmod 765 /user/../*
 * parts.map(lambda p: Row(product_id = int(p[0]), --> make sure to start with 0 p[0]
+
+* mysql
+    * mysql -uroot -pcloudera  
+    * mysql -h localhost -u retail_db -p  
+    * GRANT ALL PRIVILEGES ON DataBaseName.* to ''@'localhost';
+    * create table MYsqlDATABASE.Table(
+      11.2.2 Fixed-Point Types (Exact Value) - DECIMAL, NUMERIC
+      11.2.3 Floating-Point Types (Approximate Value) - FLOAT, DOUBLE)
+
 
 
 **Ĺessons learned data I/O** 
