@@ -39,6 +39,14 @@ SET hive.default.fileformat;
 * https://stackoverflow.com/questions/45014172/how-to-convert-bigint-to-datetime-in-hive
 * https://community.hortonworks.com/questions/82797/hive-convert-int-timestamp-to-date.html
 
+
+## sqlContext / hiveContet: show Tables
+all_tables = sqlContext.tables()
+all_tables.show()
+
+hive_all_tables = hiveContext.tables()
+hive_all_tables.show()
+
 ## Hive: Create tables
 
 Documentation: Hive Documentation --> User Documentation --> DDL  
@@ -74,7 +82,6 @@ Load data from hdfs
 ```
 hdfs dfs -copyFromLocal /home/cloudera/TEST_text_from_local.csv /user/cloudera/TEST_text_from_local.csv
 
-
 hive_context.sql("load data inpath '/user/cloudera/TEST_text_from_local.csv' (overwrite) into table default.myTab ")
 ```
 
@@ -90,6 +97,8 @@ hive_context.sql("insert into table default.myTab2 SELECT * FROM default.myTab")
 ```
 
 Write from spark to hive
+
+Create dataframe in spark
 ```
 sqoop import \
 --connect "jdbc:mysql://localhost/retail_db" \
@@ -98,48 +107,32 @@ sqoop import \
 --table products \
 --columns "product_id, product_category_id, product_name"
 
-from pyspark.sql import SQLContext, Row
-sqlContext = SQLContext(sc)
+from pyspark.sql import Row
+
 products=  sc.textFile("/user/cloudera/products") \
 .map(lambda l: l.split(",")) \
 .map(lambda p: Row(id=int(p[0]), category=p[1], name=p[2])).toDF()
 
 products=products["id", "category", "name"]
-
-hive_context = HiveContext(sc)
-hive_context.sql("CREATE TABLE default.products_cat_name (id INT, category STRING,name STRING)")
+products.show(20)
 ```
 
-This is not working
+create empty table in hive
 ```
-products = hive_context.createDataFrame(products)
+from pyspark.sql import HiveContext
+hiveContext = HiveContext(sc)
+hiveContext.sql("CREATE TABLE default.products_created_table (id string, category STRING,name STRING)")
+hiveContext.sql("CREATE TABLE problem6.products_created_table (id string, category STRING,name STRING)")
+```
+
+load data into hive
+```
+#products = hive_context.createDataFrame(products)
 products.registerTempTable("products")
+#products.write.insertInto("products_cat_name")
 
-products.write.insertInto("products_cat_name")
-products.write.mode("append").saveAsTable("products_cat_name")
+products.write.mode("append").saveAsTable("products_cat_name2")
 ```
 
 
 
-##  Spark SQL – Queries 
-```
-User Documentation --> Queries (select) -->  More Select Syntax: Join
-
-select order_status,  
-    case    
-         when order_status IN ('CLOSED', 'COMPLETE') then ‘Okay’   
-         when order_status IN ('PAYMENT_REVIEW', 'PENDING', 'PENDING_PAYMENT',') then ‘Check’  
-         else 'others'  
-    end   
-from orders;  
-```
-
-```
-select o.order_id, o.order_date, o.order_status, sum(oi.order_item_subtotal)  as order_revenue  
-from orders o   
-    join order_items oi  
-    on o.order_id = oi.order_item_order_id  
-where o.order_status in ('COMPLETE')  
-group by o.order_id, o.order_date, o.order_status  
-having sum(oi.order_item_subtotal) >= 1000;  
- ```
