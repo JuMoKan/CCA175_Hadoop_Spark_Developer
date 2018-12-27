@@ -3,12 +3,12 @@ hdfs dfs -help get
 
 
 ### Move from hdfs to local
-hdfs dfs -get /user/cloudera/ex_2/city_no_cust /home/cloudera/hdfs_output
+hdfs dfs -get /user/cloudera/ex_2/city_no_cust /home/cloudera/hdfs_output  
 hdfs dfs -copyToLocal /user/cloudera/ex_2/city_no_cust /home/cloudera/hdfs_output
 
 ### Move from local to hdfs
-hdfs dfs -put /home/cloudera/hdfs_input /user/cloudera/ex_2/city_no_cust 
-hdfs dfs -put -f /home/cloudera/hdfs_input /user/cloudera/ex_2/city_no_cust  (to overwrite existing files in hdfs)
+hdfs dfs -put /home/cloudera/hdfs_input /user/cloudera/ex_2/city_no_cust  
+hdfs dfs -put -f /home/cloudera/hdfs_input /user/cloudera/ex_2/city_no_cust  (to overwrite existing files in hdfs)  
 hdfs dfs -copyFromLocal /home/cloudera/hdfs_input /user/cloudera/ex_2/city_no_cust 
 
 ### Delete directory
