@@ -314,15 +314,17 @@ sqoop merge \
 ### Sqoop jobs
 
 ```
-sqoop job --create sqoop_job \
-  -- import \
-  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
-  --username=retail_dba \
-  --table departments \
-  --target-dir /user/cloudera/sqoop_import/departments \
-  --fields-terminated-by '|' \
-  --lines-terminated-by '\n' \
-  --outdir java_files
+sqoop job --create test_job \
+-- import \ (LEERZEICHEN ! vor import)
+--connect "jdbc:mysql://localhost/retail_db" \
+--username "root"  \ ("um username")
+--password "cloudera" \ ("um password")
+--table products_replica \
+--target-dir "/user/cloudera/problem5a/products-incremental2" \
+--as-parquetfile \
+--check-column product_id \
+--incremental append \
+--last-value 0
 ```
 
 `sqoop job --list`
