@@ -2,6 +2,7 @@
 
 
 * Hive Operators and User-Defined Functions: select concat(customer_fname,'\t',customer_lname,':',customer_city) from ... where ..like '%Text%'
+
 * enable hive-metastore in spark: sudo ln -s /usr/lib/hive/conf/hive-site.xml /usr/lib/spark/conf/hive-site.xml
     * http://community.cloudera.com/t5/Advanced-Analytics-Apache-Spark/how-to-access-the-hive-tables-from-spark-shell/m-p/36653
     * https://stackoverflow.com/questions/36051091/query-hive-table-in-pyspark
@@ -13,8 +14,8 @@
 * sqoop export: make sure mysql table has same data-type as export-table
 
 * Achtung: sqlContext nur einmal öffnen / definieren, sonst werden Tabllen nicht registriert
-    df.registerTempTable("df")
-    all_tables = sqlContext.tables()
+    df.registerTempTable("df")  
+    all_tables = sqlContext.tables()  
     all_tables.show()
 
 * Compression codecs: 
