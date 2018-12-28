@@ -26,7 +26,8 @@
 
 * mysql
     * mysql -uroot -pcloudera  
-    * mysql -h localhost -u retail_db -p  
+    * mysql -h localhost -u retail_db -p
+    * select User, Host from mysql.user;
     * GRANT ALL PRIVILEGES ON DataBaseName.* to ''@'localhost';
     * create table MYsqlDATABASE.Table(
       11.2.2 Fixed-Point Types (Exact Value) - DECIMAL, NUMERIC
@@ -46,6 +47,12 @@
     * sqlContext.setConf("spark.sql.avro.compression.codec","snappy");
     * df = sqlContext.read.format("com.databricks.spark.avro").load("/tmp/file.avro")
     * df.write.format("com.databricks.spark.avro").save("/tmp/output");
+
+* get avro schema
+    * hdfs dfs -get /user/hive/warehouse/retail_db.db/orders/part-m-00000.avro
+    * avro-tools getschema part-m-00000.avro > orders.avsc
+    * hdfs dfs -mkdir /user/hive/schemas
+    * hdfs dfs –put orders.avsc /user/hive/schemas
 
 * json files: set compression codec
     * orders_avro_snappy.toJSON().saveAsTextFile("/user/cloudera/problem5/json-gzip2", compressionCodecClass="org.apache.hadoop.io.compress.GzipCodec")
