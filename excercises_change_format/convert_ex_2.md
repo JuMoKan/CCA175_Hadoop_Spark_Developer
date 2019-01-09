@@ -34,9 +34,15 @@ products_o200 = sqlContext.sql("""
 ### Step 3: save as json
 
 ```
-codec = "org.apache.hadoop.io.compress.GzipCodec"
-products_o200.write.json("/user/cloudera/products_o200")
+products.filter(products.product_price > 200).toJSON()\
+.saveAsTextFile("/user/cloudera/products_o200", compressionCodecClass="org.apache.hadoop.io.compress.GzipCodec")
 
-To do: check again
-products_o200.toJSON.saveAsTextFile("/user/cloudera/products_o200,codec )
+Snappy-Compress did not work
+products.filter(products.product_price > 200).toJSON()\
+.saveAsTextFile("/user/cloudera/products_o200_snappy", \
+compressionCodecClass="org.apache.hadoop.io.compress.SnappyCodec")
+
+Did not work either (wrote json, no gzip compression)
+sqlContext.setConf("spark.sql.json.compression.codec", "gzip") 
+products.filter(products.product_price > 200).write.json("/user/cloudera/products_test_gzip")
 ```
