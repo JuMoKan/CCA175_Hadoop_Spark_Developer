@@ -11,9 +11,11 @@
 * für sum/count/rank () over (partitioned by .. ): hiveContext nicht sqlContext nutzen
 
 * sqoop import: no blank after \
-* sqoop export: make sure mysql table has same data-type as export-table
+* sqoop export
+    * make sure mysql table has same data-type as export-table
+    * --input-fields-terminated-by "\t" (falls spezielle field delimiter)
 
-* Achtung: sqlContext nur einmal öffnen / definieren, sonst werden Tabllen nicht registriert
+* Achtung: sqlContext nur einmal öffnen / definieren, sonst werden Tabllen nicht registriert  
     df.registerTempTable("df")  
     all_tables = sqlContext.tables()  
     all_tables.show()
@@ -54,6 +56,13 @@
     * avro-tools getschema part-m-00000.avro > orders.avsc
     * hdfs dfs -mkdir /user/hive/schemas
     * hdfs dfs –put orders.avsc /user/hive/schemas
+
+```
+create external table table_from_avro
+stored as avro
+location '/user/hive/warehouse/folder_with_avro'
+TBLPROPERTIES ('avro.schema.url'='user/hive/schemas/orders.avsc');
+```
 
 * json files: set compression codec
     * orders_avro_snappy.toJSON().saveAsTextFile("/user/cloudera/problem5/json-gzip2", compressionCodecClass="org.apache.hadoop.io.compress.GzipCodec")
